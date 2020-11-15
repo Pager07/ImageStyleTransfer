@@ -61,3 +61,7 @@ class StyleLoss(nn.Module):
         self.G.mul_(self.weight) #?
         self.loss = self.criterion(self.G,self.target)
         return self.output
+    
+    def backward(self,retain_graph= True):
+        self.loss.backward(retain_graph=retain_graph)
+        return self.loss

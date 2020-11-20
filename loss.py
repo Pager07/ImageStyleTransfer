@@ -6,8 +6,13 @@ from torchvision import transforms
 
 class ContentLoss(nn.Module):
     def __init__(self,target,weight):
+        """
+        Args:
+            target: Activations from conv_4 of the content image
+            weight: alpha from the paper? 
+        """
         super(ContentLoss, self).__init__()
-
+        
         # we 'detach' the target content from the tree used
         self.target = target.detach() *weight
 
@@ -18,12 +23,16 @@ class ContentLoss(nn.Module):
         self.criterion = nn.MSELoss()
     
     def forward(self, input):
-
+        """
+        Args:
+            input: noise image filter maps?
+        """
         self.loss = self.criterion(input* self.weight,self.target)
         self.output = input 
         return self.output
     
     def backward(self, retain_graph=True):
+        #find dloss/dF
         self.loss.backward(retain_graph=retain_graph)
         return self.loss
     
@@ -49,13 +58,22 @@ class GramMatrix(nn.Module):
 
 class StyleLoss(nn.Module):
     def __init__(self,target, weight):
+        """
+        Args:
+            target: Style target image 
+            weight: beta in the paper?
+        """
         super(StyleLoss, self).__init__()
-        self.target = target.detach() * weight #get the feautre maps
+        self.target = target.detach() * weight 
         self.weight = weight
         self.gram = GramMatrix()
         self.criterion = nn.MSELoss()
     
     def forward(self, input):
+        """
+        Args:
+            input: noise image 
+        """
         self.output = input.clone()
         self.G = self.gram(input)
         self.G.mul_(self.weight) #?
